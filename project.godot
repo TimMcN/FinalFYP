@@ -318,6 +318,11 @@ _global_script_classes=[ {
 "class": "XRToolsWindArea",
 "language": "GDScript",
 "path": "res://addons/godot-xr-tools/objects/wind_area.gd"
+}, {
+"base": "Node",
+"class": "file_reader",
+"language": "GDScript",
+"path": "res://file_loader.gd"
 } ]
 _global_script_class_icons={
 "ARVRHelpers": "",
@@ -381,7 +386,8 @@ _global_script_class_icons={
 "XRToolsVelocityAveragerLinear": "",
 "XRToolsVignette": "",
 "XRToolsVirtualKeyboard2D": "",
-"XRToolsWindArea": ""
+"XRToolsWindArea": "",
+"file_reader": ""
 }
 
 [application]
@@ -393,6 +399,7 @@ config/icon="res://icon.png"
 [autoload]
 
 XRToolsUserSettings="*res://addons/godot-xr-tools/user_settings/user_settings.gd"
+Singleton="*res://singleton.gd"
 
 [editor_plugins]
 
