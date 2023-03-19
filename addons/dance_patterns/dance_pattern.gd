@@ -68,23 +68,22 @@ func create_node(area_name:String = "noname", location:Vector3 = Vector3(0, 1, 0
 	areaL.name = area_name
 	areaL.connect("body_entered", self, "check_controller", [areaL])
 	
-	var dance_l_mesh = MeshInstance.new()
-	areaL.add_child(dance_l_mesh)
-	dance_l_mesh.owner = areaL
-	dance_l_mesh.name = "Dance_L_Mesh"
+	var dance_mesh = MeshInstance.new()
+	areaL.add_child(dance_mesh)
+	dance_mesh.owner = areaL
+	dance_mesh.name = "Dance_Mesh"
 	
 	var mesh = CubeMesh.new()
 	mesh.size = Vector3(0.25, 0.025, 0.25)
-	dance_l_mesh.mesh = mesh
+	dance_mesh.mesh = mesh
 	
-	var dance_l_mesh_collision = CollisionShape.new()
-	areaL.add_child(dance_l_mesh_collision)
-	dance_l_mesh_collision.owner = areaL
-	dance_l_mesh_collision.name = "dance_l_mesh_collision"
+	var dance_mesh_collision = CollisionShape.new()
+	areaL.add_child(dance_mesh_collision)
+	dance_mesh_collision.owner = areaL
 	
-	var dance_l_mesh_collision_shape = BoxShape.new()
-	dance_l_mesh_collision_shape.extents = Vector3(0.25, 0.025, 0.2)
-	dance_l_mesh_collision.shape = dance_l_mesh_collision_shape
+	var dance_mesh_collision_shape = BoxShape.new()
+	dance_mesh_collision_shape.extents = Vector3(0.25, 0.025, 0.2)
+	dance_mesh_collision.shape = dance_mesh_collision_shape
 	
 	areaL.transform.origin = location
 	add_child(areaL)
