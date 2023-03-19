@@ -1,7 +1,7 @@
 extends Node
 class_name file_reader
 
-func load_file(filepath):
+static func load_file(filepath):
 	var file = File.new()
 	var error = file.open(filepath, File.READ)
 	if error == OK:

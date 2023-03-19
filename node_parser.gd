@@ -1,4 +1,5 @@
 extends Node
+
 class node_loader:
 	var DEFAULT setget set_default, get_default
 	var CUSTOM setget set_custom, get_custom
@@ -23,7 +24,6 @@ class node_loader:
 	
 	class salsa extends node_loader:
 		func _ready():
-			Singleton.file_loader.file_reader.load_file("res://dances/salsa_default.txt")
+			set_default(file_reader.load_file("res://dances/salsa_default.txt"))
+			print("DEFAULT")
 			pass
-#			
-#			set_default(file_reader.load_file("res://dances/salsa_default.txt"))
