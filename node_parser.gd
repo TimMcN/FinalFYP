@@ -24,6 +24,6 @@ class node_loader:
 	
 	class salsa extends node_loader:
 		func _ready():
-			set_default(file_reader.load_file("res://dances/salsa_default.txt"))
-			print("DEFAULT")
+			#set_default(file_reader.load_file("res://dances/salsa_default.txt"))
+			#print("DEFAULT")
 			pass

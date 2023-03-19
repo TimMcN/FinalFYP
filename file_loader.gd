@@ -9,5 +9,6 @@ static func load_file(filepath):
 		var contents = file.get_as_text()
 		file.close()
 		return contents
+		
 	else:
 		print("Failed to open file:", error)

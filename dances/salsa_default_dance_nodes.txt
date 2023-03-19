@@ -1,1 +1,3 @@
-Right_Kinematic 0.25 1 0.25, Left_Kinematic 0.25 1 -0.25;!
+salsa_basic:Right_Kinematic 0.25 1 0.25,Left_Kinematic 0.25 1 -0.25;Right_Kinematic 0.2 1 0.15, Left_Kinematic 0.25 1 0.11;Right_Kinematic 0.2 1 0.15,Left_Kinematic 0.25 1 0.11
+salsa_sidestep:Right_Kinematic 0.2 1 0.15,Left_Kinematic 0.25 1 0.11;Right_Kinematic 0.2 1 0.15,Left_Kinematic 0.25 1 0.11;Right_Kinematic 0.2 1 0.15,Left_Kinematic 0.25 1 0.11
+salsa_backstep:Right_Kinematic 0.15 1 0.35,Left_Kinematic 0.22 1 -0.23;Right_Kinematic 0.2 1 0.15,Left_Kinematic 0.25 1 0.11;Right_Kinematic 0.2 1 0.15,Left_Kinematic 0.25 1 0.11
