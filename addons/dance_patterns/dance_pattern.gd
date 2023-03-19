@@ -43,12 +43,13 @@ func _process(delta):
 	index += 1
 	if deltaTime > spb:
 		deltaTime=0.001
-	setColour()
+	for node in nodes:
+		setColour(node)
 
 func _input(ev):
 	if ev is InputEventKey and ev.scancode == KEY_SPACE and not ev.echo:
 		for node in nodes:
-			moveMesh(Vector3(0.05, 0, 0.05), node)
+			moveMesh(node,Vector3(0.05, 0, 0.05))
 	if ev is InputEventKey and ev.scancode == KEY_0 and not ev.echo:
 		setColourAll("goal")
 	if ev is InputEventKey and ev.scancode == KEY_1 and not ev.echo:
@@ -59,9 +60,9 @@ func _input(ev):
 		setColourAll("reset")
 func setColourAll(state=null):
 	for node in nodes:
-		setColour("", node)
+		setColour(node)
 		
-func setColour(state=null, area:Area=null):
+func setColour(area:Area, state=null):
 	var material = SpatialMaterial.new()
 	if state == "reset":
 		state_c = true
@@ -116,7 +117,6 @@ func create_node(location:Vector3 = Vector3(0, 1, 0)):
 func check_controller(body):
 	print(body.name)
 	
-func moveMesh(change_in_location:Vector3 = Vector3(0,0,0), node:Area =null):	
+func moveMesh(node:Area, change_in_location: Vector3 = Vector3(0,0,0)):	
 	node.global_transform.origin = node.global_transform.origin + change_in_location
 	node.global_transform.origin = node.global_transform.origin + change_in_location
-
