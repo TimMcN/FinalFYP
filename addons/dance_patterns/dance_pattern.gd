@@ -13,31 +13,7 @@ var threshold = 0.8
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	nodes.append(create_node())
-	"""areaL = Area.new()
-	areaL.name = "Area Trigger Left"
-	areaL.connect("body_entered", self, "check_controller")
-	
-	dance_l_mesh = MeshInstance.new()
-	areaL.add_child(dance_l_mesh)
-	dance_l_mesh.owner = areaL
-	dance_l_mesh.name = "Dance_L_Mesh"
-	
-	var mesh = CubeMesh.new()
-	mesh.size = Vector3(0.25, 0.025, 0.25)
-	dance_l_mesh.mesh = mesh
-	
-	var dance_l_mesh_collision = CollisionShape.new()
-	areaL.add_child(dance_l_mesh_collision)
-	dance_l_mesh_collision.owner = areaL
-	dance_l_mesh_collision.name = "dance_l_mesh_collision"
-	
-	var dance_l_mesh_collision_shape = BoxShape.new()
-	dance_l_mesh_collision_shape.extents = Vector3(0.25, 0.025, 0.2)
-	dance_l_mesh_collision.shape = dance_l_mesh_collision_shape
-	
-	areaL.transform.origin = Vector3(0.25, 1, 0.25)
-	add_child(areaL)
-	"""
+	nodes.append(create_node("new_name", Vector3(-0.25, 1, 0.25)))
 func _process(delta):
 	deltaTime+=delta
 	index += 1
@@ -60,7 +36,7 @@ func _input(ev):
 		setColourAll("reset")
 func setColourAll(state=null):
 	for node in nodes:
-		setColour(node)
+		setColour(node, state)
 		
 func setColour(area:Area, state=null):
 	var material = SpatialMaterial.new()
@@ -87,10 +63,10 @@ func setColour(area:Area, state=null):
 		state_c = false
 		area.get_child(0).set_surface_material(0, material)
 		
-func create_node(location:Vector3 = Vector3(0, 1, 0)):
+func create_node(area_name:String = "noname", location:Vector3 = Vector3(0, 1, 0)):
 	var areaL = Area.new()
-	areaL.name = "Area Trigger Left"
-	areaL.connect("body_entered", self, "check_controller")
+	areaL.name = area_name
+	areaL.connect("body_entered", self, "check_controller", [areaL])
 	
 	var dance_l_mesh = MeshInstance.new()
 	areaL.add_child(dance_l_mesh)
@@ -114,9 +90,15 @@ func create_node(location:Vector3 = Vector3(0, 1, 0)):
 	add_child(areaL)
 	return areaL
 	
-func check_controller(body):
+func check_controller(body, area):
+	print ("===============================")
+	print ("")
 	print(body.name)
-	
+	print(area.name)
+	print ("")
+	print("================================")
+	area.get_parent().remove_child(self)
+		
 func moveMesh(node:Area, change_in_location: Vector3 = Vector3(0,0,0)):	
 	node.global_transform.origin = node.global_transform.origin + change_in_location
 	node.global_transform.origin = node.global_transform.origin + change_in_location
