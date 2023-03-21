@@ -1,21 +1,31 @@
 class_name persistent_data extends Node
-
 var file_reader = load("res://file_loader.gd")
-var dance_patterns = {}
-
+var DANCE_PATTERNS:Dictionary = {}
+var deltaTime
 func _ready():
 	var info = (file_reader.load_file("res://dances/salsa_default_dance_nodes.txt"))
 	var new = info.split("\n")
 	print("Lines")
-	var dance_patterns = {}
-	for line in new:
+	deltaTime=0
+	populate_dict(new)
+	#print_pattern()	
+func _process(delta):
+	deltaTime += delta
+func populate_dict(file):
+	for line in file:
 		var t = line.split(':')
 		var n = []
 		for val in t:
 			n.append(val)
-		var val = n.pop_back()
-		var key = n.pop_back()
-		dance_patterns[key] = val
-	print(dance_patterns)
-	print ("=================")
-	print(dance_patterns.get("salsa_basic"))
+		var key = n.pop_front()
+		var val = n.pop_front()
+		#print(val)
+		##print(key)
+		self.DANCE_PATTERNS[key] = val
+		
+func print_pattern():
+	print(DANCE_PATTERNS.get("salsa_basic"))
+	print(DANCE_PATTERNS.get("salsa_sidestep"))
+
+func get_dance_patterns():
+	return DANCE_PATTERNS

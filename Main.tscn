@@ -25,6 +25,7 @@ extents = Vector3( 100, 0.1, 100 )
 [node name="Spatial" type="Spatial"]
 
 [node name="FPController" parent="." instance=ExtResource( 1 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 2.03918 )
 
 [node name="ARVRCamera" parent="FPController" index="1"]
 far = 1000.0
