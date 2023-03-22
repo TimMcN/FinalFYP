@@ -1,25 +1,30 @@
 extends Node
 
-var nodes:Array
+var step_array:Array
 var index=0
 var deltaTime=0.001
 var state_c = true
-var dancePattern:String
+var dancePatternKey:String
+var dance_pattern
+var current_step
 #Seconds Per Beat
 var spb = 3
 #Threshold multiplier for acceptance
 var threshold = 0.8
 # Called when the node enters the scene tree for the first time.
-func _init(dancePattern:String="salsa_basic"):
-	self.dancePattern = dancePattern
+func _init(dancePatternKey:String="salsa_basic"):
+	self.dancePatternKey = dancePatternKey
 func _ready():
 	var pattern_manager = get_node("/root/Singleton")
 	print(pattern_manager)
-	print("PATTERN ============================== \n ", pattern_manager.get_dance_pattern(self.dancePattern))
-	var step = DanceStep.new()
-	var step2 = DanceStep.new("salsa_sidestep")
+	var dance_pattern = pattern_manager.get_dance_pattern(self.dancePatternKey)
+	var step_pool = dance_pattern.split(";")
+	for step in step_pool:
+		self.step_array.append(step)
+	print("STEP ARRAY", step_array)
+	current_step = DanceStep.new(step_array.pop_front())
+	self.add_child(current_step)
 	
-	add_child(step)
 func _process(delta):
 	deltaTime+=delta
 	index += 1
@@ -39,28 +44,45 @@ func check_controller(body, area):
 
 class DanceStep extends Node:
 	var nodes:Array
+	var node_count
 	var StepString:String
-	func _init(StepString:String="salsa_basic"):
-		self.StepString = StepString
+	var DanceStep:Array
+	var score_accum=0
+	signal mysignal
+	func _init(DanceStep:String):
+		self.node_count = 0
 		print("=========   DANCE STEP ==========")
-		print("=========   DANCE STEP ==========")
+		var DanceNodeArray = DanceStep.split(',')
+		for node_def in DanceNodeArray:
+			print("NODE NODE NODE")
+			var node_obj = DanceNode.new(node_def)
+			self.nodes.append(node_obj)
+			node_count +=1
+			node_obj.connect("status_callback", self, "score", [node_obj])
+			self.add_child(node_obj)
+	func score(node:DanceNode):
+		print("ACTIVE SIGNALs")
+		print(node)
+		self.score_accum += node.score
+		print("Callback: ", self.score_accum)
 	func _ready():
 		print("DanceStep")
-		var node1 = DanceNode.new()
-		nodes.append(node1)
-		self.add_child(node1)
 		
 		
 class DanceNode extends Node:
 	var nodes = []
+	signal status_callback
 	var area:Area
 	var deltaTime = 0.001
 	var index=1
+	var score =0
 	#Seconds Per Beat
 	var spb = 3
 	#Threshold multiplier for acceptance
 	var threshold = 0.8
 	var state_c
+	func _init(DanceNode:String):
+		print("DanceNode Init ", DanceNode)
 	func _ready():
 		self.area = create_node()
 		self.add_child(self.area)
@@ -96,6 +118,7 @@ class DanceNode extends Node:
 		
 		area.transform.origin = location
 		add_child(area)
+		test_signal()
 		return area
 		
 	func setColour(state=null):
@@ -138,6 +161,21 @@ class DanceNode extends Node:
 			setColour("success")
 		if ev is InputEventKey and ev.scancode == KEY_3 and not ev.echo:
 			setColour("reset")
+	func test_signal():
+		print ("TESTING SIGNAL")
+		self.score = 18
+		emit_signal("status_callback")
+		return self.score
+	func check_controller(body, area):
+		print ("===============================")
+		print ("")
+		print(body.name)
+		print(area.name)
+		if body.name == self.collision_target.name:
+			emit_signal("status_callback")
+		print ("")
+		print("================================")
+		area.get_parent().remove_child(self)
 
 class LearnDance extends DanceNode:
 	pass
