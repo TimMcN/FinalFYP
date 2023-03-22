@@ -4,17 +4,21 @@ var nodes:Array
 var index=0
 var deltaTime=0.001
 var state_c = true
+var dancePattern:String
 #Seconds Per Beat
 var spb = 3
 #Threshold multiplier for acceptance
 var threshold = 0.8
 # Called when the node enters the scene tree for the first time.
-
+func _init(dancePattern:String="salsa_basic"):
+	self.dancePattern = dancePattern
 func _ready():
-	var patterns = get_node("/root/Singleton")
-	print(patterns.get_dance_patterns())
+	var pattern_manager = get_node("/root/Singleton")
+	print(pattern_manager)
+	print("PATTERN ============================== \n ", pattern_manager.get_dance_pattern(self.dancePattern))
 	var step = DanceStep.new()
 	var step2 = DanceStep.new("salsa_sidestep")
+	
 	add_child(step)
 func _process(delta):
 	deltaTime+=delta
@@ -39,7 +43,6 @@ class DanceStep extends Node:
 	func _init(StepString:String="salsa_basic"):
 		self.StepString = StepString
 		print("=========   DANCE STEP ==========")
-		
 		print("=========   DANCE STEP ==========")
 	func _ready():
 		print("DanceStep")
@@ -135,3 +138,6 @@ class DanceNode extends Node:
 			setColour("success")
 		if ev is InputEventKey and ev.scancode == KEY_3 and not ev.echo:
 			setColour("reset")
+
+class LearnDance extends DanceNode:
+	pass

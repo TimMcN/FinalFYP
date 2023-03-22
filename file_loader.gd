@@ -11,3 +11,4 @@ static func load_file(filepath):
 		return contents
 	else:
 		print("Failed to open file:", error)
+		
