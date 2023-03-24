@@ -136,7 +136,7 @@ class RecordDance extends Node:
 		pass
 	func _ready():
 		pass
-	func _process():
+	func _process(delta):
 		pass
 	func _input(event):
 		pass
