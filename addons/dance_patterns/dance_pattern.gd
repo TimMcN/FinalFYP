@@ -24,7 +24,9 @@ func _ready():
 	print("Step Array Loaded: ", step_array)
 	current_step = DanceStep.new(step_array.pop_front())
 	self.add_child(current_step)
-	
+	print("PREDC")
+	var dc = DanceRecorder.new()
+	print("POSTDC")
 func _process(delta):
 	deltaTime+=delta
 	index += 1
@@ -129,17 +131,23 @@ class TimedDance extends DanceNode:
 		add_child(area)
 		test_signal()
 		return area
-class RecordDance extends Node:
+class DanceRecorder extends Node:
 	var location:Vector3
-	
+	var new_location
+	var difference
+	var differences:Array
+	var tracked_nodes:Array
 	func _init():
-		pass
-	func _ready():
 		pass
 	func _process(delta):
 		pass
 	func _input(event):
-		pass
+		print("H")
+		if event is InputEventKey and event.scancode == KEY_Q and not event.echo:
+			var lC:Spatial = get_node("Spatial")
+			print("====================================================")
+			print(lC)
+			print("====================================================")
 	func store_movement():
 		pass
 	func step_into():
