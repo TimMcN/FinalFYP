@@ -4,7 +4,6 @@ var step_array:Array
 var index=0
 var deltaTime=0.001
 var state_c = true
-var dancePatternKey:String
 var dance_pattern
 var current_step
 #Seconds Per Beat
@@ -12,12 +11,10 @@ var spb = 3
 #Threshold multiplier for acceptance
 var threshold = 0.8
 # Called when the node enters the scene tree for the first time.
-func _init(dancePatternKey:String="salsa_basic"):
-	self.dancePatternKey = dancePatternKey
 func _ready():
 	var pattern_manager = get_node("/root/Singleton")
 	print("Pattern Manager OBJ loaded: ", pattern_manager)
-	var dance_pattern = pattern_manager.get_dance_pattern(self.dancePatternKey)
+	var dance_pattern = pattern_manager.get_dance_pattern(self.name)
 	var step_pool = dance_pattern.split(";")
 	for step in step_pool:
 		self.step_array.append(step)
@@ -36,6 +33,7 @@ func _process(delta):
 		deltaTime=0.001	
 func step_complete(step:DanceStep):
 	print("Step Complete", DanceStep)
+	
 	pass
 func next_step():
 	current_step.queue_free()
@@ -58,25 +56,41 @@ class DanceStep extends Node:
 	var nodes:Array
 	signal step_callback
 	var node_count
+	var node_returned=0
 	var StepString:String
 	var DanceStep:Array
 	var score_accum=0
 	var score
 	signal mysignal
+	func parse_node(DanceNodeDef:String):
+		var a = DanceNodeDef.split(" ")
+		var dance_definition:Array = []
+		for node in a:
+			dance_definition.push_back(node)
+		return dance_definition
 	func _init(DanceStep:String):
 		self.node_count = 0
 		print("Dance Step Instantiated", self)
 		var DanceNodeArray = DanceStep.split(',')
 		for node_def in DanceNodeArray:
-			var node_obj = LearnDance.new(node_def)
-			var node_obj2 = TimedDance.new(node_def)
-			self.nodes.append(node_obj)
+			var node_def_arr = parse_node(node_def)
+			var node_obj
+			match node_def_arr[0]:	
+				"LearnDance": 
+					node_obj = LearnDance.new(node_def_arr)
+				"TimedDance": 
+					node_obj = TimedDance.new(node_def_arr)
 			node_count +=1
 			node_obj.connect("node_callback", self, "score", [node_obj])
+			self.nodes.append(node_obj)
 			self.add_child(node_obj)
 			print("Dance Node Added to Node Array in Step ", node_obj)
 	func score(node:DanceNode):
 		self.score_accum += node.score
+		self.node_returned +=1
+		if (node_returned == node_count):
+			self.score = self.score_accum/node_count
+			emit_signal("step_callback")
 	func _ready():
 		pass
 		
@@ -92,14 +106,10 @@ class DanceNode extends Node:
 	#Threshold multiplier for acceptance
 	var threshold = 0.8
 	var dance_definition:Array
-	func parse_def(DanceNodeDef:String):
-		var a = DanceNodeDef.split(" ")
-		dance_definition = []
-		for node in a:
-			self.dance_definition.push_back(node)
-	func _init(DanceNodeDef:String):
+	
+	func _init(DanceNodeDef:Array):
 		type = "Virtual Dance Node"
-		parse_def(DanceNodeDef)
+		self.dance_definition = DanceNodeDef
 		pass
 	func setColour(state=null):
 		pass
@@ -115,7 +125,7 @@ class TimedDance extends DanceNode:
 	var index=1
 	var state_c
 		
-	func _init (DanceNodeDef:String).(DanceNodeDef):
+	func _init (DanceNodeDef:Array).(DanceNodeDef):
 		print("TimedDance instantiated, timing included in score : ", self)
 		type = "TimedDance"
 		pass
@@ -158,7 +168,7 @@ class LearnDance extends DanceNode:
 	var index=1
 	var state_c
 	
-	func _init (DanceNodeDef:String).(DanceNodeDef):
+	func _init (DanceNodeDef:Array).(DanceNodeDef):
 		print("Dance Node Instantiated, LearnDance, No Timing in score, waits for user: ", self)
 		type = "LearnDance"
 		pass

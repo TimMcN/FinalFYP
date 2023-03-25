@@ -54,7 +54,7 @@ mesh = SubResource( 5 )
 [node name="CollisionShape" type="CollisionShape" parent="StaticBody"]
 shape = SubResource( 6 )
 
-[node name="Dance Pattern" type="Spatial" parent="."]
+[node name="salsa_basic" type="Spatial" parent="."]
 script = ExtResource( 2 )
 
 [editable path="FPController"]
