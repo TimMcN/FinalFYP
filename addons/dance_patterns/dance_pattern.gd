@@ -177,7 +177,10 @@ class TimedDance extends DanceNode:
 		print(body.name)
 		print(area.name)
 		if body.name == self.DanceNodeDef[NODE_TRACKER]:
-			self.score = 100
+			if float(dance_definition[TARGET_TIME]) > elapsedTime:
+				self.score = (elapsedTime/float(dance_definition[TARGET_TIME])) *100
+			else:
+				self.score = (elapsedTime-float(dance_definition[TARGET_TIME]) / float(dance_definition[TARGET_TIME]))* 100
 			emit_signal("node_callback")
 		print ("")
 		print("================================")
