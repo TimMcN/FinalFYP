@@ -55,6 +55,7 @@ mesh = SubResource( 5 )
 shape = SubResource( 6 )
 
 [node name="salsa_basic" type="Spatial" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -2.87754 )
 script = ExtResource( 2 )
 
 [editable path="FPController"]

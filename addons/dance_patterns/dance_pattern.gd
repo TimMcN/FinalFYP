@@ -2,14 +2,13 @@ extends Node
 
 var step_array:Array
 var index=0
-var deltaTime=0.001
+var t_i=0
 var state_c = true
 var dance_pattern
 var current_step
-#Seconds Per Beat
-var spb = 3
-#Threshold multiplier for acceptance
-var threshold = 0.8
+var step_completed=0
+var score = 0
+var step_count = 0
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	var pattern_manager = get_node("/root/Singleton")
@@ -18,29 +17,31 @@ func _ready():
 	var step_pool = dance_pattern.split(";")
 	for step in step_pool:
 		self.step_array.append(step)
+		step_count+=1
 	print("Step Array Loaded: ", step_array)
 	current_step = DanceStep.new(step_array.pop_front())
-	self.add_child(current_step)
 	current_step.connect("step_callback", self, "step_complete", [current_step])
-	print("PREDC")
-	var dc = DanceRecorder.new()
-	add_child(dc)
-	print("POSTDC")
-func _process(delta):
-	deltaTime+=delta
-	index += 1
-	if deltaTime > spb:
-		deltaTime=0.001	
-func step_complete(step:DanceStep):
-	print("Step Complete", DanceStep)
-	
-	pass
-func next_step():
-	current_step.queue_free()
-	current_step = DanceStep.new(step_array.pop_front())
-	current_step.connect()
 	self.add_child(current_step)
-	
+func step_complete(step:DanceStep):
+	print ("=============================")
+	print("Step Complete: ", step.StepString, " step_completed: ", step_completed)
+	self.score+= step.score
+	self.step_completed +=1
+	step.queue_free()
+	next_step()
+
+func next_step():
+	var next_step_def= step_array.pop_front()
+	if next_step_def != null:
+		t_i += 1
+		print(next_step_def, t_i)
+		current_step = DanceStep.new(next_step_def)
+		current_step.connect("step_callback", self, "step_complete", [current_step])
+		self.add_child(current_step)
+	else:
+		print("=============== FINAL SCORE ================")
+		print(self.score/self.step_completed+1)
+		print("============================================")
 func check_controller(body, area):
 	print ("===============================")
 	print ("")
@@ -88,15 +89,20 @@ class DanceStep extends Node:
 	func score(node:DanceNode):
 		self.score_accum += node.score
 		self.node_returned +=1
-		if (node_returned == node_count):
-			self.score = self.score_accum/node_count
+		print("NODE COUNT: ", self.node_count, " NODES RETURNED: ", self.node_returned)
+		if (self.node_returned == self.node_count):
+			self.score = self.score_accum/self.node_count
+			print("NODE LEVEL SCORE: ", self.score)
+			print("EMITTING STEP CALLBACK")
 			emit_signal("step_callback")
+		print("NODE CALLBACK")
 	func _ready():
 		pass
 		
 		
 class DanceNode extends Node:
 	var node
+	var returned=false
 	var type:String
 	signal node_callback
 	var deltaTime = 0.001
@@ -119,66 +125,28 @@ class DanceNode extends Node:
 		self.score = 18
 		emit_signal("node_callback")
 		print ("Signal from class type,  ", type)
-class TimedDance extends DanceNode:
-	enum {NODE_TYPE, NODE_TRACKER, NODE_X, NODE_Y, NODE_Z, TIME_GOAL}
-	var area:Area
-	var index=1
-	var state_c
-		
-	func _init (DanceNodeDef:Array).(DanceNodeDef):
-		print("TimedDance instantiated, timing included in score : ", self)
-		type = "TimedDance"
-		pass
-	
-	func _ready():
-		self.area = create_node()
-		self.add_child(self.area)
-		
-	func create_node(area_name:String = "noname", location:Vector3 = Vector3(0, 1, 0)):
-		#print("Generating Node")
-		var area = Area.new()
-		area.name = area_name
-		area.connect("body_entered", self, "check_controller", [area])
-		
-		var dance_mesh = MeshInstance.new()
-		area.add_child(dance_mesh)
-		dance_mesh.owner = area
-		dance_mesh.name = "Dance_Mesh"
-		
-		var mesh = CubeMesh.new()
-		mesh.size = Vector3(0.25, 0.025, 0.25)
-		dance_mesh.mesh = mesh
-		
-		var dance_mesh_collision = CollisionShape.new()
-		area.add_child(dance_mesh_collision)
-		dance_mesh_collision.owner = area
-		
-		var dance_mesh_collision_shape = BoxShape.new()
-		dance_mesh_collision_shape.extents = Vector3(0.25, 0.025, 0.2)
-		dance_mesh_collision.shape = dance_mesh_collision_shape
-		
-		area.transform.origin = area.transform.origin+location
-		add_child(area)
-		test_signal()
-		return area
 
-class LearnDance extends DanceNode:
-	enum {NODE_TYPE, NODE_TRACKER, NODE_X, NODE_Y, NODE_Z}
+
+class TimedDance extends DanceNode:
+	enum {NODE_TYPE, NODE_TRACKER, NODE_X, NODE_Y, NODE_Z, TARGET_TIME}
 	var area:Area
 	var index=1
-	var state_c
-	
+	var state_c = true
+	var elapsedTime = 0.0001
+
 	func _init (DanceNodeDef:Array).(DanceNodeDef):
+		self.type = "TimedDance"
 		print("Dance Node Instantiated, LearnDance, No Timing in score, waits for user: ", self)
-		type = "LearnDance"
-		pass
-	
+		assert (dance_definition[NODE_TYPE] == self.type)
+		assert (len(dance_definition) == 6)
+
 	func _ready():
 		self.area = create_node()
 		self.add_child(self.area)
 	
 	func create_node(area_name:String = "noname", location:Vector3 = Vector3(0, 1, 0)):
-		#print("Generating Node")
+		print("Generating Node: ", dance_definition)
+		location = Vector3(self.dance_definition[NODE_X],self.dance_definition[NODE_Y],self.dance_definition[NODE_Z])
 		var area = Area.new()
 		area.name = area_name
 		area.connect("body_entered", self, "check_controller", [area])
@@ -201,7 +169,6 @@ class LearnDance extends DanceNode:
 		dance_mesh_collision.shape = dance_mesh_collision_shape
 		
 		area.transform.origin = location
-		test_signal()
 		return area
 		
 	func check_controller(body, area):
@@ -209,7 +176,7 @@ class LearnDance extends DanceNode:
 		print ("")
 		print(body.name)
 		print(area.name)
-		if body.name == self.collision_target.name:
+		if body.name == self.DanceNodeDef[NODE_TRACKER]:
 			self.score = 100
 			emit_signal("node_callback")
 		print ("")
@@ -217,10 +184,9 @@ class LearnDance extends DanceNode:
 		area.get_parent().remove_child(self)
 		
 	func _process(delta):
-		deltaTime+=delta
 		index += 1
-		if deltaTime > spb:
-			deltaTime=0.001	
+		if self.elapsedTime < float(self.dance_definition[TARGET_TIME]):
+			self.elapsedTime+=delta
 		setColour()
 	
 	func setColour(state=null):
@@ -230,8 +196,7 @@ class LearnDance extends DanceNode:
 			state_c = true
 		if state_c == true:
 			var max_hue:float = 8.0/36.0
-			var hue = (deltaTime / spb) * max_hue
-			#print("DeltaTime = " + str(deltaTime) + " SPB = " + str(spb) + " MaxHue: " + str(max_hue) + " Current Hue: " + str(hue))
+			var hue = (self.elapsedTime  / float(self.dance_definition[TARGET_TIME])) * max_hue
 			material.albedo_color = Color.from_hsv(hue, 1, 1, 1)
 			area.get_child(0).set_surface_material(0, material)
 
@@ -263,6 +228,114 @@ class LearnDance extends DanceNode:
 			setColour("success")
 		if ev is InputEventKey and ev.scancode == KEY_3 and not ev.echo:
 			setColour("reset")
+			self.score = 100
+			self.area.get_parent().queue_free()
+			emit_signal("node_callback")
+
+
+class LearnDance extends DanceNode:
+	enum {NODE_TYPE, NODE_TRACKER, NODE_X, NODE_Y, NODE_Z}
+	var area:Area
+	var index=1
+	var state_c
+
+	func _init (DanceNodeDef:Array).(DanceNodeDef):
+		self.type = "LearnDance"
+		print("Dance Node Instantiated, LearnDance, No Timing in score, waits for user: ", self)
+		assert (dance_definition[NODE_TYPE] == type)
+	
+	func _ready():
+		self.area = create_node()
+		self.add_child(self.area)
+	
+	func create_node(area_name:String = "noname", location:Vector3 = Vector3(0, 1, 0)):
+		print("Generating Node: ", dance_definition)
+		location = Vector3(self.dance_definition[NODE_X],self.dance_definition[NODE_Y],self.dance_definition[NODE_Z])
+		var area = Area.new()
+		area.name = area_name
+		area.connect("body_entered", self, "check_controller", [area])
+		
+		var dance_mesh = MeshInstance.new()
+		area.add_child(dance_mesh)
+		dance_mesh.owner = area
+		dance_mesh.name = "Dance_Mesh"
+		
+		var mesh = CubeMesh.new()
+		mesh.size = Vector3(0.25, 0.025, 0.25)
+		dance_mesh.mesh = mesh
+		
+		var dance_mesh_collision = CollisionShape.new()
+		area.add_child(dance_mesh_collision)
+		dance_mesh_collision.owner = area
+		
+		var dance_mesh_collision_shape = BoxShape.new()
+		dance_mesh_collision_shape.extents = Vector3(0.25, 0.025, 0.2)
+		dance_mesh_collision.shape = dance_mesh_collision_shape
+		
+		area.transform.origin = location
+		return area
+		
+	func check_controller(body, area):
+		print ("===============================")
+		print ("")
+		print(body.name)
+		print(area.name)
+		if body.name == self.DanceNodeDef[NODE_TRACKER]:
+			self.score = 100
+			emit_signal("node_callback")
+		print ("")
+		print("================================")
+		area.get_parent().remove_child(self)
+		
+	func _process(delta):
+		deltaTime+=delta
+		index += 1
+		if deltaTime > spb:
+			deltaTime=0.001	
+		setColour()
+	
+	func setColour(state=null):
+		area = self.area
+		var material = SpatialMaterial.new()
+		if state == "reset":
+			state_c = true
+		if state_c == true:
+			var max_hue:float = 8.0/36.0
+			var hue = (deltaTime / spb) * max_hue
+			material.albedo_color = Color.from_hsv(hue, 1, 1, 1)
+			area.get_child(0).set_surface_material(0, material)
+
+		if state == "goal":
+			material.albedo_color = Color(1, .5, .2)
+			state_c = false
+			area.get_child(0).set_surface_material(0, material)
+		elif state == "fail":
+			material.albedo_color = Color(1, 0, 0)
+			state_c = false
+			area.get_child(0).set_surface_material(0, material)
+		elif state == "success": # && deltaTime > spb * threshold:
+			#print ("deltaTime: " + str(deltaTime) + " spb: " + str(spb) + " spb*threshold: " + str(spb*threshold))
+			material.albedo_color = Color(0,0,1)
+			state_c = false
+			area.get_child(0).set_surface_material(0, material)
+	func moveMesh(change_in_location: Vector3 = Vector3(0,0,0)):	
+		var node = self.area
+		node.global_transform.origin = node.global_transform.origin + change_in_location
+		node.global_transform.origin = node.global_transform.origin + change_in_location
+	func _input(ev):
+		if ev is InputEventKey and ev.scancode == KEY_SPACE and not ev.echo:
+				self.moveMesh(Vector3(0.05, 0, 0.05))
+		if ev is InputEventKey and ev.scancode == KEY_0 and not ev.echo:
+			setColour("goal")
+		if ev is InputEventKey and ev.scancode == KEY_1 and not ev.echo:
+			setColour("fail")
+		if ev is InputEventKey and ev.scancode == KEY_2 and not ev.echo:
+			setColour("success")
+		if ev is InputEventKey and ev.scancode == KEY_3 and not ev.echo:
+			setColour("reset")
+			self.score = 100
+			self.area.get_parent().queue_free()
+			emit_signal("node_callback")
 class DanceRecorder extends Node:
 	var location:Vector3
 	var new_location

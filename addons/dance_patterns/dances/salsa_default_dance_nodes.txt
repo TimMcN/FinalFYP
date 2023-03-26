@@ -1,3 +1,3 @@
-salsa_basic:LearnDance Right_Kinematic 0.25 1 0.25,LearnDance Left_Kinematic 0.25 1 -0.25;LearnDance Right_Kinematic 0.2 1 0.15,LearnDance Left_Kinematic 0.25 1 0.11;LearnDance Right_Kinematic 0.2 1 0.15,LearnDance Left_Kinematic 0.25 1 0.11
+salsa_basic:TimedDance Right_Kinematic 0.25 1 0.25 0.5,TimedDance Right_Kinematic 0.25 1 0.25 0.5;TimedDance Right_Kinematic 0.25 1 0.25 0.5
 salsa_sidestep:LearnDance Right_Kinematic 0.2 1 0.15,LearnDance Left_Kinematic 0.25 1 0.11;LearnDance Right_Kinematic 0.2 1 0.15,LearnDance Left_Kinematic 0.25 1 0.11;LearnDance Right_Kinematic 0.2 1 0.15,LearnDance Left_Kinematic 0.25 1 0.11
 salsa_backstep:LearnDance Right_Kinematic 0.15 1 0.35,LearnDance Left_Kinematic 0.22 1 -0.23;LearnDance Right_Kinematic 0.2 1 0.15,LearnDance Left_Kinematic 0.25 1 0.11;LearnDance Right_Kinematic 0.2 1 0.15,LearnDance Left_Kinematic 0.25 1 0.11
