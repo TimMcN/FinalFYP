@@ -1,10 +1,9 @@
 extends Node
 
 var step_array:Array
+var dance_pattern
 var index=0
 var t_i=0
-var state_c = true
-var dance_pattern
 var current_step
 var step_completed=0
 var score = 0
@@ -29,7 +28,6 @@ func step_complete(step:DanceStep):
 	self.step_completed +=1
 	step.queue_free()
 	next_step()
-
 func next_step():
 	var next_step_def= step_array.pop_front()
 	if next_step_def != null:
@@ -42,16 +40,6 @@ func next_step():
 		print("=============== FINAL SCORE ================")
 		print(self.score/self.step_completed+1)
 		print("============================================")
-func check_controller(body, area):
-	print ("===============================")
-	print ("")
-	print(body.name)
-	print(area.name)
-	print ("")
-	print("================================")
-	area.get_parent().remove_child(self)
-		
-
 
 class DanceStep extends Node:
 	var nodes:Array
@@ -62,7 +50,6 @@ class DanceStep extends Node:
 	var DanceStep:Array
 	var score_accum=0
 	var score
-	signal mysignal
 	func parse_node(DanceNodeDef:String):
 		var a = DanceNodeDef.split(" ")
 		var dance_definition:Array = []
@@ -178,9 +165,9 @@ class TimedDance extends DanceNode:
 		print(area.name)
 		if body.name == self.DanceNodeDef[NODE_TRACKER]:
 			if float(dance_definition[TARGET_TIME]) > elapsedTime:
-				self.score = (elapsedTime/float(dance_definition[TARGET_TIME])) *100
+				self.score = ((elapsedTime/float(dance_definition[TARGET_TIME])) *100)
 			else:
-				self.score = (elapsedTime-float(dance_definition[TARGET_TIME]) / float(dance_definition[TARGET_TIME]))* 100
+				self.score = 1-((elapsedTime-float(dance_definition[TARGET_TIME]) / float(dance_definition[TARGET_TIME])) * 100)
 			emit_signal("node_callback")
 		print ("")
 		print("================================")
@@ -211,8 +198,7 @@ class TimedDance extends DanceNode:
 			material.albedo_color = Color(1, 0, 0)
 			state_c = false
 			area.get_child(0).set_surface_material(0, material)
-		elif state == "success": # && deltaTime > spb * threshold:
-			#print ("deltaTime: " + str(deltaTime) + " spb: " + str(spb) + " spb*threshold: " + str(spb*threshold))
+		elif state == "success": 
 			material.albedo_color = Color(0,0,1)
 			state_c = false
 			area.get_child(0).set_surface_material(0, material)
@@ -290,12 +276,6 @@ class LearnDance extends DanceNode:
 		print("================================")
 		area.get_parent().remove_child(self)
 		
-	func _process(delta):
-		deltaTime+=delta
-		index += 1
-		if deltaTime > spb:
-			deltaTime=0.001	
-		setColour()
 	
 	func setColour(state=null):
 		area = self.area
@@ -339,6 +319,7 @@ class LearnDance extends DanceNode:
 			self.score = 100
 			self.area.get_parent().queue_free()
 			emit_signal("node_callback")
+			
 class DanceRecorder extends Node:
 	var location:Vector3
 	var new_location

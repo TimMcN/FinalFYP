@@ -3,7 +3,7 @@ var file_reader = load("res://file_loader.gd")
 var DANCE_PATTERNS:Dictionary = {}
 var deltaTime
 func _ready():
-	var info = (file_reader.load_file("res://addons/dance_patterns/dances/salsa_default_dance_nodes.txt"))
+	var info = (file_reader.load_file("res://addons/dance_patterns/dances/default_dance_nodes.txt"))
 	var new = info.split("\n")
 	print("Lines")
 	deltaTime=0
