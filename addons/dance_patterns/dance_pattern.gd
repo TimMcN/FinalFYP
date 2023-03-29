@@ -10,6 +10,8 @@ var score = 0
 var step_count = 0
 # Called when the node enters the scene tree for the first time.
 func _ready():
+	load_dance_pattern()
+func load_dance_pattern():
 	var pattern_manager = get_node("/root/Singleton")
 	print("Pattern Manager OBJ loaded: ", pattern_manager)
 	var dance_pattern = pattern_manager.get_dance_pattern(self.name)
@@ -40,6 +42,7 @@ func next_step():
 		print("=============== FINAL SCORE ================")
 		print(self.score/self.step_completed+1)
 		print("============================================")
+		load_dance_pattern()
 
 class DanceStep extends Node:
 	var nodes:Array
@@ -93,10 +96,6 @@ class DanceNode extends Node:
 	var type:String
 	signal node_callback
 	var deltaTime = 0.001
-	var score =0
-	#Seconds Per Beat
-	var spb = 3
-	#Threshold multiplier for acceptance
 	var threshold = 0.8
 	var dance_definition:Array
 	
@@ -237,7 +236,7 @@ class LearnDance extends DanceNode:
 		self.area = create_node()
 		self.add_child(self.area)
 	
-	func create_node(area_name:String = "noname", location:Vector3 = Vector3(0, 1, 0)):
+	func create_node(area_name:String = "area", location:Vector3 = Vector3(0, 1, 0)):
 		print("Generating Node: ", dance_definition)
 		location = Vector3(self.dance_definition[NODE_X],self.dance_definition[NODE_Y],self.dance_definition[NODE_Z])
 		var area = Area.new()
@@ -280,14 +279,6 @@ class LearnDance extends DanceNode:
 	func setColour(state=null):
 		area = self.area
 		var material = SpatialMaterial.new()
-		if state == "reset":
-			state_c = true
-		if state_c == true:
-			var max_hue:float = 8.0/36.0
-			var hue = (deltaTime / spb) * max_hue
-			material.albedo_color = Color.from_hsv(hue, 1, 1, 1)
-			area.get_child(0).set_surface_material(0, material)
-
 		if state == "goal":
 			material.albedo_color = Color(1, .5, .2)
 			state_c = false
@@ -296,8 +287,7 @@ class LearnDance extends DanceNode:
 			material.albedo_color = Color(1, 0, 0)
 			state_c = false
 			area.get_child(0).set_surface_material(0, material)
-		elif state == "success": # && deltaTime > spb * threshold:
-			#print ("deltaTime: " + str(deltaTime) + " spb: " + str(spb) + " spb*threshold: " + str(spb*threshold))
+		elif state == "success":
 			material.albedo_color = Color(0,0,1)
 			state_c = false
 			area.get_child(0).set_surface_material(0, material)
