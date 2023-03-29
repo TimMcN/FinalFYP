@@ -14,8 +14,8 @@ func _ready():
 func load_dance_pattern():
 	var pattern_manager = get_node("/root/Singleton")
 	print("Pattern Manager OBJ loaded: ", pattern_manager)
-	var dance_pattern = pattern_manager.get_dance_pattern(self.name)
-	var step_pool = dance_pattern.split(";")
+	self.dance_pattern = pattern_manager.get_dance_pattern(self.name)
+	var step_pool = self.dance_pattern.split(";")
 	for step in step_pool:
 		self.step_array.append(step)
 		step_count+=1
@@ -31,6 +31,7 @@ func step_complete(step:DanceStep):
 	step.queue_free()
 	next_step()
 func next_step():
+	print("Next Step")
 	var next_step_def= step_array.pop_front()
 	if next_step_def != null:
 		t_i += 1
@@ -92,11 +93,9 @@ class DanceStep extends Node:
 		
 class DanceNode extends Node:
 	var node
-	var returned=false
 	var type:String
+	var score
 	signal node_callback
-	var deltaTime = 0.001
-	var threshold = 0.8
 	var dance_definition:Array
 	
 	func _init(DanceNodeDef:Array):
@@ -108,7 +107,7 @@ class DanceNode extends Node:
 	func setScore():
 		pass
 	func test_signal():
-		self.score = 18
+		self.score = 3.14
 		emit_signal("node_callback")
 		print ("Signal from class type,  ", type)
 
@@ -174,8 +173,7 @@ class TimedDance extends DanceNode:
 		
 	func _process(delta):
 		index += 1
-		if self.elapsedTime < float(self.dance_definition[TARGET_TIME]):
-			self.elapsedTime+=delta
+		self.elapsedTime+=delta
 		if self.elapsedTime > float(self.dance_definition[TARGET_TIME])*1.75:
 			self.score = 0
 			emit_signal("node_callback")
@@ -314,6 +312,8 @@ class LearnDance extends DanceNode:
 			emit_signal("node_callback")
 			
 class DanceRecorder extends Node:
+	var location:Vector3
+	var new_location
 	var difference
 	var differences:Array
 	var tracked_nodes:Array
