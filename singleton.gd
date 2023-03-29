@@ -8,9 +8,6 @@ func _ready():
 	print("Lines")
 	deltaTime=0
 	populate_dict(new)
-	print_pattern("salsa_basic")
-	print_pattern("salsa_sidestep")
-	#print_pattern()	
 func _process(delta):
 	deltaTime += delta
 func populate_dict(file):
@@ -21,16 +18,11 @@ func populate_dict(file):
 			n.append(val)
 		var key = n.pop_front()
 		var val = n.pop_front()
-		#print(val)
-		##print(key)
 		self.DANCE_PATTERNS[key] = val
 		
 func print_pattern(pattern_name:String):
 	print(self.DANCE_PATTERNS.get(pattern_name))
 
-func get_dance_pattern(pattern:String):
-	return self.DANCE_PATTERNS.get(pattern)
+func get_dance_pattern(pattern_name:String):
+	return self.DANCE_PATTERNS.get(pattern_name)
 
-func get_dance_steps(dance_name:String):
-	var steplist = DANCE_PATTERNS.get(dance_name)
-	print("SINGLETON: ", steplist)
