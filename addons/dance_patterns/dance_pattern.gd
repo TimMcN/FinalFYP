@@ -314,8 +314,6 @@ class LearnDance extends DanceNode:
 			emit_signal("node_callback")
 			
 class DanceRecorder extends Node:
-	var location:Vector3
-	var new_location
 	var difference
 	var differences:Array
 	var tracked_nodes:Array
