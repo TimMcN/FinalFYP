@@ -130,7 +130,7 @@ class TimedDance extends DanceNode:
 		self.area = create_node()
 		self.add_child(self.area)
 	
-	func create_node(area_name:String = "noname", location:Vector3 = Vector3(0, 1, 0)):
+	func create_node(area_name:String = "default_name", location:Vector3 = Vector3(0, 1, 0)):
 		print("Generating Node: ", dance_definition)
 		location = Vector3(self.dance_definition[NODE_X],self.dance_definition[NODE_Y],self.dance_definition[NODE_Z])
 		var area = Area.new()
@@ -176,6 +176,9 @@ class TimedDance extends DanceNode:
 		index += 1
 		if self.elapsedTime < float(self.dance_definition[TARGET_TIME]):
 			self.elapsedTime+=delta
+		if self.elapsedTime > float(self.dance_definition[TARGET_TIME])*1.75:
+			self.score = 0
+			emit_signal("node_callback")
 		setColour()
 	
 	func setColour(state=null):
