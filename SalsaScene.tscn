@@ -25,7 +25,7 @@ extents = Vector3( 100, 0.1, 100 )
 [node name="Spatial" type="Spatial"]
 
 [node name="FPController" parent="." instance=ExtResource( 1 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 2.03918 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.132794, 0.31065 )
 
 [node name="ARVRCamera" parent="FPController" index="1"]
 far = 1000.0
@@ -54,8 +54,29 @@ mesh = SubResource( 5 )
 [node name="CollisionShape" type="CollisionShape" parent="StaticBody"]
 shape = SubResource( 6 )
 
-[node name="salsa_basic" type="Spatial" parent="."]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -2.87754 )
+[node name="salsa_basic_L" type="Spatial" parent="."]
+transform = Transform( -1, 0, -1.50996e-07, 0, 1, 0, 1.50996e-07, 0, -1, 4.47181, 0.0738039, 0.340274 )
 script = ExtResource( 2 )
+
+[node name="Label3D" type="Label3D" parent="salsa_basic_L"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 4.09782e-08, 1.34976, -0.203521 )
+text = "Salsa Basic"
+
+[node name="salsa_basic_T" type="Spatial" parent="."]
+transform = Transform( -1, 0, 8.74228e-08, 0, 1, 0, -8.74228e-08, 0, -1, 2.662, 0.074, 0.34 )
+script = ExtResource( 2 )
+
+[node name="Label3D" type="Label3D" parent="salsa_basic_T"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.26786, -0.305718 )
+text = "Salsa Basic Timed
+"
+
+[node name="salsa_sidestep_L" type="Spatial" parent="."]
+transform = Transform( -1, 0, 8.74228e-08, 0, 1, 0, -8.74228e-08, 0, -1, 0, 0.07, 0.344 )
+script = ExtResource( 2 )
+
+[node name="Label3D" type="Label3D" parent="salsa_sidestep_L"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.45676, 0 )
+text = "Salsa Sidestep"
 
 [editable path="FPController"]

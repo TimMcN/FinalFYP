@@ -19,7 +19,7 @@ export var order : int = 10
 export var max_speed : float = 10.0
 
 ## If true, the player can strafe
-export var strafe : bool = false
+export var strafe : bool = true
 
 
 # Controller node

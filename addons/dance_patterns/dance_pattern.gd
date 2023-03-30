@@ -20,7 +20,7 @@ func load_dance_pattern():
 		self.step_array.append(step)
 		step_count+=1
 	print("Step Array Loaded: ", step_array)
-	current_step = DanceStep.new(step_array.pop_front())
+	current_step = DanceStep.new(step_array.pop_front(), self.translation)
 	current_step.connect("step_callback", self, "step_complete", [current_step])
 	self.add_child(current_step)
 func step_complete(step:DanceStep):
@@ -36,7 +36,7 @@ func next_step():
 	if next_step_def != null:
 		t_i += 1
 		print(next_step_def, t_i)
-		current_step = DanceStep.new(next_step_def)
+		current_step = DanceStep.new(next_step_def, self.translation)
 		current_step.connect("step_callback", self, "step_complete", [current_step])
 		self.add_child(current_step)
 	else:
@@ -60,7 +60,7 @@ class DanceStep extends Node:
 		for node in a:
 			dance_definition.push_back(node)
 		return dance_definition
-	func _init(DanceStep:String):
+	func _init(DanceStep:String, parent_location:Vector3):
 		self.node_count = 0
 		print("Dance Step Instantiated", self)
 		var DanceNodeArray = DanceStep.split(',')
@@ -69,9 +69,9 @@ class DanceStep extends Node:
 			var node_obj
 			match node_def_arr[0]:	
 				"LearnDance": 
-					node_obj = LearnDance.new(node_def_arr)
+					node_obj = LearnDance.new(node_def_arr, parent_location)
 				"TimedDance": 
-					node_obj = TimedDance.new(node_def_arr)
+					node_obj = TimedDance.new(node_def_arr, parent_location)
 			node_count +=1
 			node_obj.connect("node_callback", self, "score", [node_obj])
 			self.nodes.append(node_obj)
@@ -91,16 +91,18 @@ class DanceStep extends Node:
 		pass
 		
 		
-class DanceNode extends Node:
+class DanceNode extends Spatial:
 	var node
 	var type:String
 	var score
 	signal node_callback
 	var dance_definition:Array
+	var parenet_location
 	
-	func _init(DanceNodeDef:Array):
+	func _init(DanceNodeDef:Array, parent_location:Vector3):
 		type = "Virtual Dance Node"
 		self.dance_definition = DanceNodeDef
+		self.parent_location = parent_location
 		pass
 	func setColour(state=null):
 		pass
@@ -115,23 +117,26 @@ class DanceNode extends Node:
 class TimedDance extends DanceNode:
 	enum {NODE_TYPE, NODE_TRACKER, NODE_X, NODE_Y, NODE_Z, TARGET_TIME}
 	var area:Area
+	var relative_transform
 	var index=1
 	var state_c = true
 	var elapsedTime = 0.0001
 
-	func _init (DanceNodeDef:Array).(DanceNodeDef):
+	func _init (DanceNodeDef:Array, parent_location:Vector3).(DanceNodeDef, parent_location):
 		self.type = "TimedDance"
-		print("Dance Node Instantiated, LearnDance, No Timing in score, waits for user: ", self)
+		print("Dance Node Instantiated, TimedDance, No Timing in score, waits for user: ", self)
 		assert (dance_definition[NODE_TYPE] == self.type)
 		assert (len(dance_definition) == 6)
+		self.dance_definition = DanceNodeDef
 
 	func _ready():
 		self.area = create_node()
+		self.get_po
 		self.add_child(self.area)
 	
 	func create_node(area_name:String = "default_name", location:Vector3 = Vector3(0, 1, 0)):
 		print("Generating Node: ", dance_definition)
-		location = Vector3(self.dance_definition[NODE_X],self.dance_definition[NODE_Y],self.dance_definition[NODE_Z])
+		location = self.parent_location + Vector3(self.dance_definition[NODE_X],self.dance_definition[NODE_Y],self.dance_definition[NODE_Z])
 		var area = Area.new()
 		area.name = area_name
 		area.connect("body_entered", self, "check_controller", [area])
@@ -150,10 +155,10 @@ class TimedDance extends DanceNode:
 		dance_mesh_collision.owner = area
 		
 		var dance_mesh_collision_shape = BoxShape.new()
-		dance_mesh_collision_shape.extents = Vector3(0.25, 0.025, 0.2)
+		dance_mesh_collision_shape.extents = Vector3(0.125, 0.025, 0.125)
 		dance_mesh_collision.shape = dance_mesh_collision_shape
 		
-		area.transform.origin = location
+		area.transform.origin += location
 		return area
 		
 	func check_controller(body, area):
@@ -161,7 +166,7 @@ class TimedDance extends DanceNode:
 		print ("")
 		print(body.name)
 		print(area.name)
-		if body.name == self.DanceNodeDef[NODE_TRACKER]:
+		if body.name == self.dance_definition[NODE_TRACKER]:
 			if float(dance_definition[TARGET_TIME]) > elapsedTime:
 				self.score = ((elapsedTime/float(dance_definition[TARGET_TIME])) *100)
 			else:
@@ -227,11 +232,13 @@ class LearnDance extends DanceNode:
 	var area:Area
 	var index=1
 	var state_c
-
-	func _init (DanceNodeDef:Array).(DanceNodeDef):
+	var parent_location
+	func _init (DanceNodeDef:Array, parent_location:Vector3).(DanceNodeDef, parent_location):
 		self.type = "LearnDance"
 		print("Dance Node Instantiated, LearnDance, No Timing in score, waits for user: ", self)
+		self.dance_definition=DanceNodeDef
 		assert (dance_definition[NODE_TYPE] == type)
+		
 	
 	func _ready():
 		self.area = create_node()
@@ -258,10 +265,9 @@ class LearnDance extends DanceNode:
 		dance_mesh_collision.owner = area
 		
 		var dance_mesh_collision_shape = BoxShape.new()
-		dance_mesh_collision_shape.extents = Vector3(0.25, 0.025, 0.2)
+		dance_mesh_collision_shape.extents = Vector3(0.125, 0.025, 0.125)
 		dance_mesh_collision.shape = dance_mesh_collision_shape
-		
-		area.transform.origin = location
+		area.transform.origin = (self.parent_location + location)
 		return area
 		
 	func check_controller(body, area):
@@ -269,7 +275,7 @@ class LearnDance extends DanceNode:
 		print ("")
 		print(body.name)
 		print(area.name)
-		if body.name == self.DanceNodeDef[NODE_TRACKER]:
+		if body.name == self.dance_definition[NODE_TRACKER]:
 			self.score = 100
 			emit_signal("node_callback")
 		print ("")
